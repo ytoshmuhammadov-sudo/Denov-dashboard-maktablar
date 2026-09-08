@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denov — Maktablar & Tarqatish boshqaruvi</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;color:#1e293b;font-size:14px}
+
+.hdr{background:linear-gradient(135deg,#1e3a8a,#1e40af);color:#fff;padding:14px 14px 10px}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-start}
+.hdr h1{font-size:17px;font-weight:700}
+.hdr p{font-size:11px;opacity:.75;margin-top:2px}
+.deadline-badge{background:rgba(255,255,255,.2);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+
+.main-tabs{display:flex;background:#1e3a8a}
+.main-tab{flex:1;padding:10px 4px;font-size:12px;font-weight:600;color:rgba(255,255,255,.6);border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;text-align:center}
+.main-tab.active{color:#fff;border-bottom:3px solid #60a5fa}
+
+/* ===== MAKTABLAR ===== */
+.mk-page{display:none}
+.mk-page.active{display:block}
+
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 12px}
+.stat{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:10px 12px}
+.stat .lbl{font-size:10px;color:#64748b;margin-bottom:3px}
+.stat .val{font-size:22px;font-weight:700;color:#1e40af;line-height:1}
+.stat .sub{font-size:10px;color:#94a3b8;margin-top:2px}
+
+.summary{margin:0 12px 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 14px}
+.s-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0}
+.s-lbl{color:#3730a3}
+.s-val{font-weight:600;color:#1e40af}
+
+.sub-tabs{display:flex;gap:6px;padding:0 12px 8px}
+.sub-tab{flex:1;padding:7px 4px;border-radius:20px;border:1.5px solid #cbd5e1;background:#fff;color:#475569;font-size:12px;font-weight:500;cursor:pointer;text-align:center}
+.sub-tab.active{background:#1e40af;color:#fff;border-color:#1e40af}
+
+.sec-title{font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.5px;padding:0 12px 6px}
+
+.card-list{padding:0 12px 20px;display:flex;flex-direction:column;gap:8px}
+.mk-card{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:12px 14px}
+.mk-card.city{border-left:3px solid #1e40af}
+.mk-card.near{border-left:3px solid #059669}
+.mk-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.mk-name{font-size:14px;font-weight:600}
+.mk-num{font-size:11px;color:#94a3b8}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.badge.city{background:#dbeafe;color:#1e40af}
+.badge.near{background:#d1fae5;color:#059669}
+.mk-meta2{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.meta-item{font-size:11px;color:#64748b}
+.meta-item span{font-weight:600;color:#1e293b}
+.mk-location{font-size:11px;color:#94a3b8;margin-top:6px;display:flex;align-items:center;gap:4px}
+.mk-xat{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9}
+.xat-label{font-size:11px;color:#64748b}
+.xat-val{font-size:15px;font-weight:700;color:#1e40af}
+.prog-bar{height:4px;background:#e2e8f0;border-radius:2px;margin-top:6px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px}
+.maps-btn{display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#1e40af;background:#eff6ff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;margin-top:8px;text-decoration:none}
+
+/* ===== TRACKER ===== */
+.tr-page{display:none}
+.tr-page.active{display:block}
+
+.countdown{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px 12px 0}
+.cd-box{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:8px;text-align:center}
+.cd-day{font-size:20px;font-weight:700;color:#1e40af}
+.cd-lbl{font-size:10px;color:#64748b;margin-top:1px}
+
+.nav2{display:flex;gap:5px;padding:10px 12px;overflow-x:auto}
+.nav-btn{flex-shrink:0;padding:7px 12px;border-radius:20px;border:1.5px solid #cbd5e1;background:#fff;color:#475569;font-size:11px;font-weight:500;cursor:pointer}
+.nav-btn.active{background:#1e40af;color:#fff;border-color:#1e40af}
+
+.t-section{display:none;padding:0 12px 20px}
+.t-section.active{display:block}
+
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+.stat-card{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:12px}
+.stat-card .lbl{font-size:10px;color:#64748b;margin-bottom:4px}
+.stat-card .val{font-size:22px;font-weight:700;color:#1e40af}
+.stat-card.green .val{color:#059669}
+.stat-card.orange .val{color:#d97706}
+
+.prog-wrap{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:12px;margin-bottom:10px}
+.prog-wrap .prog-bar{height:10px;margin-bottom:4px}
+.prog-title{font-size:12px;font-weight:600;margin-bottom:8px}
+.prog-pct{font-size:11px;color:#64748b;text-align:right}
+
+.kun-card{background:#fff;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:10px;overflow:hidden}
+.kun-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid #f1f5f9}
+.kun-title{font-size:13px;font-weight:700}
+.kun-date{font-size:11px;color:#64748b}
+.kun-status{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+.st-wait{background:#fef3c7;color:#d97706}
+.st-progress{background:#dbeafe;color:#1e40af}
+.st-done{background:#d1fae5;color:#059669}
+
+.mk-row{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid #f8fafc}
+.mk-row:last-child{border-bottom:none}
+.mk-check{width:22px;height:22px;border-radius:6px;border:2px solid #cbd5e1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:#fff;font-size:14px;font-weight:700;color:#fff}
+.mk-check.checked{background:#059669;border-color:#059669}
+.mk-info{flex:1;min-width:0}
+.mk-iname{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-imeta{font-size:10px;color:#94a3b8}
+.mk-sinf-val{font-size:11px;color:#1e40af;font-weight:600;white-space:nowrap}
+
+.sinf-row{display:flex;align-items:center;gap:6px;padding:6px 14px 8px;background:#f8fafc;border-top:1px solid #f1f5f9}
+.sinf-label{font-size:10px;color:#64748b;flex-shrink:0}
+.sinf-inp{width:55px;font-size:12px;border:1px solid #cbd5e1;border-radius:6px;padding:4px 6px;text-align:center}
+.sinf-save{font-size:11px;background:#1e40af;color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer}
+
+.harajat-card{background:#fff;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:10px;overflow:hidden}
+.h-title{font-size:13px;font-weight:700;padding:10px 14px;border-bottom:1px solid #f1f5f9}
+.h-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid #f8fafc}
+.h-row:last-child{border-bottom:none}
+.h-label{font-size:12px;color:#475569}
+.h-val{font-size:13px;font-weight:700}
+.h-total{display:flex;justify-content:space-between;padding:10px 14px;background:#1e40af;color:#fff}
+.h-total-label{font-size:12px;font-weight:600}
+.h-total-val{font-size:15px;font-weight:700}
+
+.sovga-card{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.sovga-title{font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px}
+.sovga-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0}
+.sovga-lbl{color:#78350f}
+.sovga-val{font-weight:600;color:#92400e}
+
+.eslatma-card{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:12px 14px;margin-bottom:10px}
+.eslatma-title{font-size:12px;font-weight:700;margin-bottom:8px}
+.eslatma-item{display:flex;gap:8px;font-size:12px;color:#475569;padding:5px 0;border-bottom:1px solid #f1f5f9}
+.eslatma-item:last-child{border-bottom:none}
+.eslatma-icon{flex-shrink:0}
+
+.footer{background:#1e3a8a;color:#fff;text-align:center;font-size:11px;padding:10px 12px;margin-top:10px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-top">
+    <div>
+      <h1>🏠 Denov — Uy savdosi loyihasi</h1>
+      <p>40 ta maktab · 10 000 xat · 10–13 sentyabr</p>
+    </div>
+    <div class="deadline-badge">⏰ 13 sentyabr</div>
+  </div>
+</div>
+
+<div class="main-tabs">
+  <button class="main-tab active" onclick="switchMain('maktablar',this)">📚 Maktablar</button>
+  <button class="main-tab" onclick="switchMain('tracker',this)">✅ Tracker</button>
+</div>
+
+<!-- ============ MAKTABLAR ============ -->
+<div class="mk-page active" id="page-maktablar">
+  <div class="stats">
+    <div class="stat"><div class="lbl">Jami maktablar</div><div class="val">40</div><div class="sub">shahar + atrofi</div></div>
+    <div class="stat"><div class="lbl">Jami xat</div><div class="val">10 000</div><div class="sub">boshlang'ich ota-onalar</div></div>
+    <div class="stat"><div class="lbl">Shahar ichida</div><div class="val">18</div><div class="sub">Denov shahri</div></div>
+    <div class="stat"><div class="lbl">Shahar atrofi</div><div class="val">22</div><div class="sub">yaqin mahallalar</div></div>
+  </div>
+
+  <div class="summary">
+    <div class="s-row"><span class="s-lbl">Jami 1–4 sinf o'quvchilari</span><span class="s-val">~8 900 nafar</span></div>
+    <div class="s-row"><span class="s-lbl">Har bir maktabga o'rtacha xat</span><span class="s-val">~250 ta</span></div>
+    <div class="s-row"><span class="s-lbl">Zaxira xat</span><span class="s-val">~1 100 ta</span></div>
+    <div class="s-row"><span class="s-lbl">Har maktabdan 1 ta tarqatuvchi bola</span><span class="s-val">40 bola</span></div>
+  </div>
+
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="filterMk('all',this)">Hammasi (40)</button>
+    <button class="sub-tab" onclick="filterMk('city',this)">Shahar (18)</button>
+    <button class="sub-tab" onclick="filterMk('near',this)">Atrofi (22)</button>
+  </div>
+  <div class="sec-title" id="mk-sec-title">Barcha maktablar</div>
+  <div class="card-list" id="mk-cards"></div>
+</div>
+
+<!-- ============ TRACKER ============ -->
+<div class="tr-page" id="page-tracker">
+
+  <div class="countdown">
+    <div class="cd-box"><div class="cd-day" id="cd1">—</div><div class="cd-lbl">10 sentyabr</div></div>
+    <div class="cd-box"><div class="cd-day" id="cd2">—</div><div class="cd-lbl">11 sentyabr</div></div>
+    <div class="cd-box"><div class="cd-day" id="cd3">—</div><div class="cd-lbl">12–13 sentyabr</div></div>
+  </div>
+
+  <div class="nav2">
+    <button class="nav-btn active" onclick="showTab('progress',this)">📊 Progress</button>
+    <button class="nav-btn" onclick="showTab('kun1',this)">1-kun</button>
+    <button class="nav-btn" onclick="showTab('kun2',this)">2-kun</button>
+    <button class="nav-btn" onclick="showTab('kun3',this)">3-kun</button>
+    <button class="nav-btn" onclick="showTab('harajat',this)">💰 Harajat</button>
+    <button class="nav-btn" onclick="showTab('statistika',this)">📈 Statistika</button>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="t-section active" id="t-progress">
+    <div class="stat-grid">
+      <div class="stat-card green"><div class="lbl">Tugallangan</div><div class="val" id="done-count">0</div><div class="lbl">maktab (40dan)</div></div>
+      <div class="stat-card"><div class="lbl">Qolgan</div><div class="val" id="left-count">40</div><div class="lbl">ta maktab</div></div>
+      <div class="stat-card"><div class="lbl">Tarqatilgan xat</div><div class="val" id="xat-count">0</div><div class="lbl">ta</div></div>
+      <div class="stat-card orange"><div class="lbl">Kirgan sinflar</div><div class="val" id="sinf-count">0</div><div class="lbl">ta sinf xona</div></div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-title">Umumiy progress</div>
+      <div class="prog-bar"><div class="prog-fill" id="main-bar" style="width:0%;background:#1e40af"></div></div>
+      <div class="prog-pct" id="main-pct">0% bajarildi</div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-title">1-kun — Shahar markazi (14 mk)</div>
+      <div class="prog-bar"><div class="prog-fill" id="bar1" style="width:0%;background:#059669"></div></div>
+      <div class="prog-pct" id="pct1">0 / 14</div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-title">2-kun — Shahar + yaqin (14 mk)</div>
+      <div class="prog-bar"><div class="prog-fill" id="bar2" style="width:0%;background:#d97706"></div></div>
+      <div class="prog-pct" id="pct2">0 / 14</div>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-title">3-kun — Uzoqroq qishloqlar (12 mk)</div>
+      <div class="prog-bar"><div class="prog-fill" id="bar3" style="width:0%;background:#7c3aed"></div></div>
+      <div class="prog-pct" id="pct3">0 / 12</div>
+    </div>
+    <div class="eslatma-card">
+      <div class="eslatma-title">📋 Har kun eslatmasi</div>
+      <div class="eslatma-item"><span class="eslatma-icon">🌅</span>Ertalab 8:00 — maktablar ochiladi, birinchi dars</div>
+      <div class="eslatma-item"><span class="eslatma-icon">🎁</span>Har maktabda: ustoz bilan gaplash → sovga ber → xat tarqat</div>
+      <div class="eslatma-item"><span class="eslatma-icon">🧒</span>1 bola = 1 maktab. Tanaffusda yoki dars boshida tarqatadi</div>
+      <div class="eslatma-item"><span class="eslatma-icon">📞</span>Kechqurun 18:00 — kunlik hisobot</div>
+      <div class="eslatma-item"><span class="eslatma-icon">⚠️</span>13 sentyabr kuni hammasi tugashi shart!</div>
+    </div>
+  </div>
+
+  <!-- KUN 1 -->
+  <div class="t-section" id="t-kun1"><div id="list-kun1"></div></div>
+  <!-- KUN 2 -->
+  <div class="t-section" id="t-kun2"><div id="list-kun2"></div></div>
+  <!-- KUN 3 -->
+  <div class="t-section" id="t-kun3"><div id="list-kun3"></div></div>
+
+  <!-- STATISTIKA -->
+  <div class="t-section" id="t-statistika">
+    <div class="stat-grid" style="margin-bottom:10px">
+      <div class="stat-card green"><div class="lbl">Bajarilgan mk</div><div class="val" id="st-done">0</div><div class="lbl">ta / 40 dan</div></div>
+      <div class="stat-card orange"><div class="lbl">Tarqatilgan xat</div><div class="val" id="st-xat">0</div><div class="lbl">ta</div></div>
+      <div class="stat-card"><div class="lbl">Kirgan sinflar</div><div class="val" id="st-sinf">0</div><div class="lbl">ta sinf xona</div></div>
+      <div class="stat-card" style="border-left:3px solid #dc2626"><div class="lbl">Qolgan mk</div><div class="val" id="st-qolgan" style="color:#dc2626">40</div><div class="lbl">ta</div></div>
+    </div>
+
+    <!-- Asosiy progress -->
+    <div class="prog-wrap">
+      <div class="prog-title" style="display:flex;justify-content:space-between"><span>Umumiy progress</span><span id="st-pct-text" style="color:#1e40af;font-weight:700">0%</span></div>
+      <div class="prog-bar" style="height:14px;border-radius:7px"><div class="prog-fill" id="st-main-bar" style="width:0%;background:linear-gradient(90deg,#1e40af,#3b82f6);border-radius:7px"></div></div>
+    </div>
+
+    <!-- Kun bo'yicha jadval -->
+    <div class="harajat-card" style="margin-bottom:10px">
+      <div class="h-title">📅 Kunlar bo'yicha holat</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:#f8fafc">
+              <th style="padding:8px 10px;text-align:left;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0">Kun</th>
+              <th style="padding:8px 6px;text-align:center;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0">Mk</th>
+              <th style="padding:8px 6px;text-align:center;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0">Bajarildi</th>
+              <th style="padding:8px 6px;text-align:center;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0">Xat</th>
+              <th style="padding:8px 6px;text-align:center;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0">Holat</th>
+            </tr>
+          </thead>
+          <tbody id="st-kun-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Maktablar jadvali real vaqt -->
+    <div class="harajat-card" style="margin-bottom:10px">
+      <div class="h-title">🏫 Barcha maktablar — real holat</div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead>
+            <tr style="background:#f8fafc">
+              <th style="padding:7px 8px;text-align:left;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0">#</th>
+              <th style="padding:7px 6px;text-align:left;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0">Maktab</th>
+              <th style="padding:7px 6px;text-align:center;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0">Xat</th>
+              <th style="padding:7px 6px;text-align:center;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0">Sinf</th>
+              <th style="padding:7px 6px;text-align:center;color:#64748b;font-weight:600;border-bottom:1px solid #e2e8f0">✓</th>
+            </tr>
+          </thead>
+          <tbody id="st-mk-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Harajat real -->
+    <div class="harajat-card" style="margin-bottom:10px">
+      <div class="h-title">💰 Harajat holati</div>
+      <div class="h-row"><span class="h-label">Rejalashtirilgan jami</span><span class="h-val">3 650 000 so'm</span></div>
+      <div class="h-row"><span class="h-label">40 bola haqi (to'liq)</span><span class="h-val">2 000 000 so'm</span></div>
+      <div class="h-row"><span class="h-label">40 ustoz sovgasi (to'liq)</span><span class="h-val">1 200 000 so'm</span></div>
+      <div class="h-row"><span class="h-label">Transport (3 kun)</span><span class="h-val">300 000 so'm</span></div>
+      <div class="h-row"><span class="h-label">Ehtimoliy xarajat</span><span class="h-val">150 000 so'm</span></div>
+    </div>
+  </div>
+
+  <!-- HARAJAT -->
+  <div class="t-section" id="t-harajat">
+    <div class="harajat-card">
+      <div class="h-title">👥 40 ta bola uchun to'lov</div>
+      <div class="h-row"><span class="h-label">Har bolaga</span><span class="h-val">50 000 so'm</span></div>
+      <div class="h-row"><span class="h-label">Bolalar soni</span><span class="h-val">40 nafar</span></div>
+      <div class="h-total"><span class="h-total-label">Jami bolalar haqi</span><span class="h-total-val">2 000 000 so'm</span></div>
+    </div>
+    <div class="sovga-card">
+      <div class="sovga-title">🎁 Ustoz sovgalari (40 ta)</div>
+      <div class="sovga-row"><span class="sovga-lbl">Har ustoz sovgasi</span><span class="sovga-val">30 000 so'm</span></div>
+      <div class="sovga-row"><span class="sovga-lbl">Ustoz soni</span><span class="sovga-val">40 nafar</span></div>
+      <div class="sovga-row" style="border-top:1px solid #fde68a;padding-top:6px;margin-top:3px"><span class="sovga-lbl" style="font-weight:700">Jami sovgalar</span><span class="sovga-val" style="font-size:14px">1 200 000 so'm</span></div>
+      <div style="font-size:10px;color:#92400e;margin-top:8px">💡 Daftar to'plami, ruchka yoki shirinlik</div>
+    </div>
+    <div class="harajat-card">
+      <div class="h-title">🚗 Qo'shimcha xarajatlar</div>
+      <div class="h-row"><span class="h-label">Kunlik transport (3 kun)</span><span class="h-val">300 000 so'm</span></div>
+      <div class="h-row"><span class="h-label">Ehtimoliy / kutilmagan xarajat</span><span class="h-val">150 000 so'm</span></div>
+      <div class="h-total"><span class="h-total-label">Jami qo'shimcha</span><span class="h-total-val">450 000 so'm</span></div>
+    </div>
+    <div class="harajat-card">
+      <div class="h-title">📊 Umumiy byudjet</div>
+      <div class="h-row"><span class="h-label">40 ta bola haqi</span><span class="h-val">2 000 000 so'm</span></div>
+      <div class="h-row"><span class="h-label">40 ta ustoz sovgasi</span><span class="h-val">1 200 000 so'm</span></div>
+      <div class="h-row"><span class="h-label">Transport + ehtimoliy</span><span class="h-val">450 000 so'm</span></div>
+      <div class="h-total"><span class="h-total-label">JAMI HARAJAT</span><span class="h-total-val">3 650 000 so'm</span></div>
+    </div>
+    <div class="eslatma-card">
+      <div class="eslatma-title">💡 Kutilgan natija</div>
+      <div class="eslatma-item"><span class="eslatma-icon">📬</span>10 000 xat → 2–5% konversiya = 200–500 qo'ng'iroq</div>
+      <div class="eslatma-item"><span class="eslatma-icon">🏠</span>1 uy sotilsa → barcha xarajat qoplanadi</div>
+      <div class="eslatma-item"><span class="eslatma-icon">📱</span>Xatda QR kod + telefon bo'lsa konversiya yuqori</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">🏠 Denov uy savdosi · 10–13 sentyabr · 40 maktab · 10 000 xat</div>
+
+<script>
+/* ===== MAKTABLAR DATA ===== */
+const MAKTABLAR = [
+  {id:1,nom:"1-sonli UMM",tur:"city",sinf1_4:480,joy:"Istiqlol ko'chasi, Denov shahar markazi",km:0},
+  {id:2,nom:"3-sonli UMM",tur:"city",sinf1_4:420,joy:"Navruz ko'chasi, Denov shahar",km:0},
+  {id:3,nom:"4-sonli UMM",tur:"city",sinf1_4:400,joy:"Yoshlar ko'chasi, Denov shahar",km:0},
+  {id:4,nom:"5-sonli UMM",tur:"city",sinf1_4:440,joy:"Sh.Rashidov ko'chasi, Denov shahar",km:0},
+  {id:5,nom:"7-sonli UMM",tur:"city",sinf1_4:360,joy:"Mustaqillik ko'chasi, Denov shahar",km:0},
+  {id:6,nom:"8-sonli UMM",tur:"city",sinf1_4:340,joy:"Amir Temur ko'chasi, Denov shahar",km:0},
+  {id:7,nom:"9-sonli UMM",tur:"city",sinf1_4:320,joy:"O'zbegim ko'chasi, Denov shahar",km:0},
+  {id:8,nom:"10-sonli UMM",tur:"city",sinf1_4:320,joy:"Bog' ko'chasi, Denov shahar",km:0},
+  {id:9,nom:"16-sonli UMM",tur:"city",sinf1_4:260,joy:"Xalqlar do'stligi ko'chasi, Denov",km:0},
+  {id:10,nom:"24-sonli UMM",tur:"city",sinf1_4:300,joy:"Markaz ko'chasi, Denov shahar",km:0},
+  {id:11,nom:"44-sonli UMM",tur:"city",sinf1_4:200,joy:"Sport ko'chasi, Denov shahar",km:0},
+  {id:12,nom:"45-sonli UMM",tur:"city",sinf1_4:280,joy:"Tinchlik ko'chasi, Denov shahar",km:0},
+  {id:13,nom:"55-sonli UMM",tur:"city",sinf1_4:200,joy:"G'alaba ko'chasi, Denov shahar",km:0},
+  {id:14,nom:"56-sonli UMM",tur:"city",sinf1_4:200,joy:"Fayz ko'chasi, Denov shahar",km:0},
+  {id:15,nom:"57-sonli UMM",tur:"city",sinf1_4:180,joy:"Mehnat ko'chasi, Denov shahar",km:0},
+  {id:16,nom:"60-sonli UMM",tur:"city",sinf1_4:200,joy:"Do'stlik shaharchasi markazi",km:4},
+  {id:17,nom:"94-sonli UMM",tur:"city",sinf1_4:160,joy:"Yangi mahalla, Denov shahar",km:0},
+  {id:18,nom:"97-sonli UMM",tur:"city",sinf1_4:160,joy:"Yuksalish ko'chasi, Denov shahar",km:0},
+  {id:19,nom:"15-sonli UMM",tur:"near",sinf1_4:280,joy:"Yangibog' MFY",km:3},
+  {id:20,nom:"28-sonli UMM",tur:"near",sinf1_4:240,joy:"Xolchayon MFY",km:5},
+  {id:21,nom:"31-sonli UMM",tur:"near",sinf1_4:260,joy:"Anbarsoy MFY",km:6},
+  {id:22,nom:"34-sonli UMM",tur:"near",sinf1_4:220,joy:"Sina MFY",km:7},
+  {id:23,nom:"35-sonli UMM",tur:"near",sinf1_4:240,joy:"Qaraxon MFY",km:4},
+  {id:24,nom:"50-sonli UMM",tur:"near",sinf1_4:260,joy:"Farg'ona MFY",km:8},
+  {id:25,nom:"53-sonli UMM",tur:"near",sinf1_4:220,joy:"Yurchi MFY",km:9},
+  {id:26,nom:"58-sonli UMM",tur:"near",sinf1_4:160,joy:"Paxtakurash MFY",km:12},
+  {id:27,nom:"59-sonli UMM",tur:"near",sinf1_4:220,joy:"Xayrabod shaharchasi",km:4},
+  {id:28,nom:"61-sonli UMM",tur:"near",sinf1_4:180,joy:"Kenagas MFY",km:5},
+  {id:29,nom:"62-sonli UMM",tur:"near",sinf1_4:160,joy:"Binokor MFY",km:6},
+  {id:30,nom:"63-sonli UMM",tur:"near",sinf1_4:160,joy:"Navro'z MFY",km:7},
+  {id:31,nom:"65-sonli UMM",tur:"near",sinf1_4:180,joy:"Dahana MFY",km:8},
+  {id:32,nom:"71-sonli UMM",tur:"near",sinf1_4:200,joy:"Tortuvli MFY",km:10},
+  {id:33,nom:"73-sonli UMM",tur:"near",sinf1_4:180,joy:"Pistamozor MFY",km:11},
+  {id:34,nom:"74-sonli UMM",tur:"near",sinf1_4:160,joy:"Hazorbog' MFY",km:13},
+  {id:35,nom:"75-sonli UMM",tur:"near",sinf1_4:160,joy:"Yangizamon MFY",km:14},
+  {id:36,nom:"76-sonli UMM",tur:"near",sinf1_4:160,joy:"Kiziljar MFY",km:15},
+  {id:37,nom:"77-sonli UMM",tur:"near",sinf1_4:140,joy:"Yangiobod MFY",km:16},
+  {id:38,nom:"78-sonli UMM",tur:"near",sinf1_4:140,joy:"Yangibog' 2-MFY",km:17},
+  {id:39,nom:"79-sonli UMM",tur:"near",sinf1_4:140,joy:"Sina-2 MFY",km:18},
+  {id:40,nom:"80-sonli UMM",tur:"near",sinf1_4:140,joy:"Anbarsoy-2 MFY",km:19},
+];
+
+/* ===== TRACKER DATA ===== */
+const TDATA = {
+  kun1:[
+    {id:1,nom:"1-sonli UMM",joy:"Shahar markazi",xat:480},
+    {id:2,nom:"3-sonli UMM",joy:"Shahar markazi",xat:420},
+    {id:3,nom:"4-sonli UMM",joy:"Shahar",xat:400},
+    {id:4,nom:"5-sonli UMM",joy:"Shahar",xat:440},
+    {id:5,nom:"7-sonli UMM",joy:"Shahar",xat:360},
+    {id:6,nom:"8-sonli UMM",joy:"Shahar",xat:340},
+    {id:7,nom:"9-sonli UMM",joy:"Shahar",xat:320},
+    {id:8,nom:"10-sonli UMM",joy:"Shahar",xat:320},
+    {id:9,nom:"16-sonli UMM",joy:"Shahar",xat:260},
+    {id:10,nom:"24-sonli UMM",joy:"Shahar",xat:300},
+    {id:11,nom:"44-sonli UMM",joy:"Shahar",xat:200},
+    {id:12,nom:"45-sonli UMM",joy:"Shahar",xat:280},
+    {id:13,nom:"55-sonli UMM",joy:"Shahar",xat:200},
+    {id:14,nom:"56-sonli UMM",joy:"Shahar",xat:200},
+  ],
+  kun2:[
+    {id:15,nom:"57-sonli UMM",joy:"Shahar",xat:180},
+    {id:16,nom:"60-sonli UMM",joy:"Do'stlik shaharchasi",xat:200},
+    {id:17,nom:"94-sonli UMM",joy:"Shahar",xat:160},
+    {id:18,nom:"97-sonli UMM",joy:"Shahar",xat:160},
+    {id:19,nom:"15-sonli UMM",joy:"Yangibog' MFY, 3 km",xat:280},
+    {id:20,nom:"28-sonli UMM",joy:"Xolchayon MFY, 5 km",xat:240},
+    {id:21,nom:"31-sonli UMM",joy:"Anbarsoy MFY, 6 km",xat:260},
+    {id:22,nom:"35-sonli UMM",joy:"Qaraxon MFY, 4 km",xat:240},
+    {id:23,nom:"59-sonli UMM",joy:"Xayrabod, 4 km",xat:220},
+    {id:24,nom:"61-sonli UMM",joy:"Kenagas MFY, 5 km",xat:180},
+    {id:25,nom:"62-sonli UMM",joy:"Binokor MFY, 6 km",xat:160},
+    {id:26,nom:"63-sonli UMM",joy:"Navro'z MFY, 7 km",xat:160},
+    {id:27,nom:"34-sonli UMM",joy:"Sina MFY, 7 km",xat:220},
+    {id:28,nom:"50-sonli UMM",joy:"Farg'ona MFY, 8 km",xat:260},
+  ],
+  kun3:[
+    {id:29,nom:"53-sonli UMM",joy:"Yurchi MFY, 9 km",xat:220},
+    {id:30,nom:"65-sonli UMM",joy:"Dahana MFY, 8 km",xat:180},
+    {id:31,nom:"71-sonli UMM",joy:"Tortuvli MFY, 10 km",xat:200},
+    {id:32,nom:"73-sonli UMM",joy:"Pistamozor MFY, 11 km",xat:180},
+    {id:33,nom:"58-sonli UMM",joy:"Paxtakurash MFY, 12 km",xat:160},
+    {id:34,nom:"74-sonli UMM",joy:"Hazorbog' MFY, 13 km",xat:160},
+    {id:35,nom:"75-sonli UMM",joy:"Yangizamon MFY, 14 km",xat:160},
+    {id:36,nom:"76-sonli UMM",joy:"Kiziljar MFY, 15 km",xat:160},
+    {id:37,nom:"77-sonli UMM",joy:"Yangiobod MFY, 16 km",xat:140},
+    {id:38,nom:"78-sonli UMM",joy:"Yangibog' 2, 17 km",xat:140},
+    {id:39,nom:"79-sonli UMM",joy:"Sina-2 MFY, 18 km",xat:140},
+    {id:40,nom:"80-sonli UMM",joy:"Anbarsoy-2 MFY, 19 km",xat:140},
+  ]
+};
+
+/* ===== MAIN TAB SWITCH ===== */
+function switchMain(page, btn){
+  document.querySelectorAll('.mk-page,.tr-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.main-tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ===== MAKTABLAR RENDER ===== */
+const maxSinf = Math.max(...MAKTABLAR.map(m=>m.sinf1_4));
+function xatH(s){return Math.round(s*0.95);}
+
+function renderMk(list){
+  const el=document.getElementById('mk-cards');
+  el.innerHTML=list.map((m,i)=>{
+    const xat=xatH(m.sinf1_4);
+    const pct=Math.round(m.sinf1_4/maxSinf*100);
+    const kmText=m.km>0?'Markazdan '+m.km+' km':'Shahar markazi';
+    const mapsUrl='https://www.google.com/maps/search/'+encodeURIComponent(m.nom+' Denov tumani Surxondaryo');
+    const turLabel=m.tur==='city'?'Shahar':'Atrofi';
+    return `<div class="mk-card ${m.tur}">
+      <div class="mk-top">
+        <div><div class="mk-name">${m.nom}</div><div class="mk-num">№${i+1}</div></div>
+        <span class="badge ${m.tur}">${turLabel}</span>
+      </div>
+      <div class="mk-meta2">
+        <div class="meta-item">1–4 sinf: <span>${m.sinf1_4}</span></div>
+        <div class="meta-item">Masofa: <span>${kmText}</span></div>
+      </div>
+      <div class="mk-location">📍 ${m.joy}</div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${m.tur==='city'?'#1e40af':'#059669'}"></div></div>
+      <div class="mk-xat"><span class="xat-label">Tarqatiladigan xat</span><span class="xat-val">${xat} ta</span></div>
+      <a class="maps-btn" href="${mapsUrl}" target="_blank">📍 Google Mapsda ko'rish</a>
+    </div>`;
+  }).join('');
+}
+
+function filterMk(t, btn){
+  document.querySelectorAll('.sub-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const titles={all:'Barcha maktablar (40 ta)',city:'Shahar ichidagi maktablar (18 ta)',near:'Atrofdagi maktablar (22 ta)'};
+  document.getElementById('mk-sec-title').textContent=titles[t];
+  renderMk(t==='all'?MAKTABLAR:MAKTABLAR.filter(m=>m.tur===t));
+}
+
+/* ===== TRACKER STATE ===== */
+function loadSt(){try{return JSON.parse(localStorage.getItem('denov_st')||'{}');}catch(e){return{};}}
+function saveSt(s){localStorage.setItem('denov_st',JSON.stringify(s));}
+let ST=loadSt();
+function isChk(id){return ST['c_'+id]===true;}
+function getSf(id){return ST['s_'+id]||0;}
+function toggleChk(id){ST['c_'+id]=!isChk(id);saveSt(ST);renderAll();}
+function saveSf(id){ST['s_'+id]=parseInt(document.getElementById('si_'+id).value)||0;saveSt(ST);renderAll();}
+
+/* ===== TRACKER RENDER ===== */
+function buildKun(kunKey,containerId){
+  const list=TDATA[kunKey];
+  const colors={kun1:'#059669',kun2:'#d97706',kun3:'#7c3aed'};
+  const dates={kun1:'10 sentyabr',kun2:'11 sentyabr',kun3:'12–13 sentyabr'};
+  const titles={kun1:'1-kun — Shahar markazi (14 mk)',kun2:'2-kun — Shahar + yaqin (14 mk)',kun3:'3-kun — Uzoq qishloqlar (12 mk)'};
+  const done=list.filter(m=>isChk(m.id)).length;
+  const pct=Math.round(done/list.length*100);
+  const stC=done===0?'st-wait':done===list.length?'st-done':'st-progress';
+  const stT=done===0?'Kutilmoqda':done===list.length?'Bajarildi':'Jarayonda';
+  let html=`<div class="kun-card">
+    <div class="kun-header">
+      <div><div class="kun-title">${titles[kunKey]}</div><div class="kun-date">${dates[kunKey]}</div></div>
+      <span class="kun-status ${stC}">${stT}</span>
+    </div>
+    <div class="prog-wrap" style="margin:8px 10px;padding:8px">
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${colors[kunKey]}"></div></div>
+      <div class="prog-pct">${done} / ${list.length} bajarildi</div>
+    </div>`;
+  list.forEach(m=>{
+    const chk=isChk(m.id);const sf=getSf(m.id);
+    html+=`<div class="mk-row">
+      <div class="mk-check ${chk?'checked':''}" onclick="toggleChk(${m.id})">${chk?'✓':''}</div>
+      <div class="mk-info"><div class="mk-iname">${m.nom}</div><div class="mk-imeta">${m.joy} · ${m.xat} xat</div></div>
+      <div class="mk-sinf-val">${sf>0?sf+' sinf':''}</div>
+    </div>
+    <div class="sinf-row">
+      <span class="sinf-label">Kirgan sinf:</span>
+      <input class="sinf-inp" id="si_${m.id}" type="number" min="0" max="20" value="${sf}" placeholder="0">
+      <button class="sinf-save" onclick="saveSf(${m.id})">Saqlash</button>
+    </div>`;
+  });
+  html+='</div>';
+  document.getElementById(containerId).innerHTML=html;
+}
+
+function updateProgress(){
+  const all=[...TDATA.kun1,...TDATA.kun2,...TDATA.kun3];
+  const done=all.filter(m=>isChk(m.id)).length;
+  const xat=all.filter(m=>isChk(m.id)).reduce((s,m)=>s+m.xat,0);
+  const sinf=all.reduce((s,m)=>s+getSf(m.id),0);
+  const pct=Math.round(done/40*100);
+  document.getElementById('done-count').textContent=done;
+  document.getElementById('left-count').textContent=40-done;
+  document.getElementById('xat-count').textContent=xat.toLocaleString();
+  document.getElementById('sinf-count').textContent=sinf;
+  document.getElementById('main-bar').style.width=pct+'%';
+  document.getElementById('main-pct').textContent=pct+'% bajarildi';
+  const d1=TDATA.kun1.filter(m=>isChk(m.id)).length;
+  const d2=TDATA.kun2.filter(m=>isChk(m.id)).length;
+  const d3=TDATA.kun3.filter(m=>isChk(m.id)).length;
+  document.getElementById('bar1').style.width=Math.round(d1/14*100)+'%';
+  document.getElementById('bar2').style.width=Math.round(d2/14*100)+'%';
+  document.getElementById('bar3').style.width=Math.round(d3/12*100)+'%';
+  document.getElementById('pct1').textContent=d1+' / 14';
+  document.getElementById('pct2').textContent=d2+' / 14';
+  document.getElementById('pct3').textContent=d3+' / 12';
+}
+
+function renderAll(){
+  buildKun('kun1','list-kun1');
+  buildKun('kun2','list-kun2');
+  buildKun('kun3','list-kun3');
+  updateProgress();
+}
+
+function showTab(t, btn){
+  document.querySelectorAll('.t-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('t-'+t).classList.add('active');
+  btn.classList.add('active');
+  if(t==='statistika') renderStat();
+}
+
+function renderStat(){
+  const all=[...TDATA.kun1,...TDATA.kun2,...TDATA.kun3];
+  const done=all.filter(m=>isChk(m.id)).length;
+  const xat=all.filter(m=>isChk(m.id)).reduce((s,m)=>s+m.xat,0);
+  const sinf=all.reduce((s,m)=>s+getSf(m.id),0);
+  const pct=Math.round(done/40*100);
+
+  document.getElementById('st-done').textContent=done;
+  document.getElementById('st-xat').textContent=xat.toLocaleString();
+  document.getElementById('st-sinf').textContent=sinf;
+  document.getElementById('st-qolgan').textContent=40-done;
+  document.getElementById('st-main-bar').style.width=pct+'%';
+  document.getElementById('st-pct-text').textContent=pct+'%';
+
+  // Kunlar jadvali
+  const kunInfo=[
+    {key:'kun1',nom:'1-kun (10 sen)',total:14,color:'#059669'},
+    {key:'kun2',nom:'2-kun (11 sen)',total:14,color:'#d97706'},
+    {key:'kun3',nom:'3-kun (12-13 sen)',total:12,color:'#7c3aed'},
+  ];
+  let ktbody='';
+  kunInfo.forEach(k=>{
+    const d=TDATA[k.key].filter(m=>isChk(m.id)).length;
+    const x=TDATA[k.key].filter(m=>isChk(m.id)).reduce((s,m)=>s+m.xat,0);
+    const p=Math.round(d/k.total*100);
+    const st=d===0?'<span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:10px;font-size:10px">Kutilmoqda</span>':
+              d===k.total?'<span style="background:#d1fae5;color:#059669;padding:2px 8px;border-radius:10px;font-size:10px">✓ Bajarildi</span>':
+              '<span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:10px">Jarayonda</span>';
+    ktbody+=`<tr style="border-bottom:1px solid #f1f5f9">
+      <td style="padding:8px 10px;font-weight:600;color:${k.color}">${k.nom}</td>
+      <td style="padding:8px 6px;text-align:center">${k.total}</td>
+      <td style="padding:8px 6px;text-align:center;font-weight:700;color:${k.color}">${d} (${p}%)</td>
+      <td style="padding:8px 6px;text-align:center">${x.toLocaleString()}</td>
+      <td style="padding:8px 6px;text-align:center">${st}</td>
+    </tr>`;
+  });
+  document.getElementById('st-kun-tbody').innerHTML=ktbody;
+
+  // Barcha maktablar jadvali
+  let mbody='';
+  all.forEach((m,i)=>{
+    const chk=isChk(m.id);
+    const sf=getSf(m.id);
+    mbody+=`<tr style="border-bottom:1px solid #f8fafc;background:${chk?'#f0fdf4':'#fff'}">
+      <td style="padding:6px 8px;color:#94a3b8">${i+1}</td>
+      <td style="padding:6px 6px;font-weight:${chk?'600':'400'};color:${chk?'#059669':'#1e293b'}">${m.nom}</td>
+      <td style="padding:6px 6px;text-align:center;color:#1e40af;font-weight:600">${m.xat}</td>
+      <td style="padding:6px 6px;text-align:center;color:#d97706;font-weight:600">${sf>0?sf:'—'}</td>
+      <td style="padding:6px 6px;text-align:center;font-size:16px">${chk?'✅':'⬜'}</td>
+    </tr>`;
+  });
+  document.getElementById('st-mk-tbody').innerHTML=mbody;
+}
+
+/* ===== COUNTDOWN ===== */
+function updateCD(){
+  const now=new Date();
+  [{id:'cd1',d:'2025-09-10T08:00:00'},{id:'cd2',d:'2025-09-11T08:00:00'},{id:'cd3',d:'2025-09-12T08:00:00'}]
+  .forEach(({id,d})=>{
+    const diff=new Date(d)-now;
+    const el=document.getElementById(id);
+    if(diff<0){el.textContent='✓';el.style.color='#059669';}
+    else{const day=Math.floor(diff/86400000);const hr=Math.floor(diff%86400000/3600000);el.textContent=day>0?day+'k':hr+'s';}
+  });
+}
+
+/* ===== INIT ===== */
+renderMk(MAKTABLAR);
+renderAll();
+updateCD();
+setInterval(updateCD,60000);
+</script>
+</body>
+</html>
